@@ -19,7 +19,6 @@ i know its not really much but its just a fun experiment for me
 // to define preferences like LYDIA_TYPEDEFS, i reccoment defining this
 // preferences at the top of the header file so that whenvever you include it
 // you will always have the preferences
-// by default i'll enable this
 // #define LYDIA_TYPEDEFS
 // #define LYDIA_REMOVE_PREFIX
 
@@ -99,6 +98,15 @@ void lyd_texture_flipx(lyd_Texture t);
 void lyd_texture_flipy(lyd_Texture t);
 void lyd_texture_cut(lyd_Texture *t, lyd_vec2 pos, lyd_vec2 size);
 void lyd_texture_free(lyd_Texture texture);
+
+typedef struct {
+  lyd_Texture *items;
+  u32 len;
+} lyd_Spritesheet;
+
+lyd_Spritesheet lyd_spritesheet_create(char *path, lyd_vec2u tilesize);
+lyd_Texture lyd_spritesheet_get(lyd_Spritesheet s, u32 i);
+void lyd_spritesheet_free(lyd_Spritesheet s);
 
 typedef enum {
   LYD_BLEND_NONE,
@@ -308,10 +316,11 @@ typedef lyd_vec2i             vec2i;
 typedef lyd_vec2u             vec2u;
 typedef lyd_vec2f              vec2;
 typedef lyd_Color             Color;
+typedef lyd_BlendMode     BlendMode;
 typedef lyd_Texture         Texture;
+typedef lyd_Spritesheet Spritesheet;
 typedef lyd_Key                 Key;
 typedef lyd_MouseButton MouseButton;
-typedef lyd_BlendMode     BlendMode;
 
 #define COLOR_WHITE     LYD_COLOR_WHITE     
 #define COLOR_BLACK     LYD_COLOR_BLACK     
@@ -554,7 +563,7 @@ void lyd_change_blending(lyd_BlendMode mode) {
   render.blending = mode;
 }
 void lyd_render_pixel(lyd_vec2 pos, lyd_Color color) {
-  if (pos.x > 0 && pos.y > 0 && pos.x < render.target->size.x && pos.y < render.target->size.y) {
+  if (pos.x >= 0 && pos.y >= 0 && pos.x < render.target->size.x && pos.y < render.target->size.y) {
     u32 out = color;
     if (render.blending != LYD_BLEND_NONE) {
       u8 src_a = 0;
@@ -660,7 +669,6 @@ void lyd_render_line(lyd_vec2 start, lyd_vec2 end, lyd_Color color) {
   }
 }
 
-
 lyd_Texture lyd_texture_load(char *path) {
   int width, height, channels;
   uint8_t *imageData = stbi_load(path, &width, &height, &channels, 4); // Force RGBA (4 channels)
@@ -736,6 +744,38 @@ void lyd_texture_cut(lyd_Texture *t, lyd_vec2 pos, lyd_vec2 size) {
   
 void lyd_texture_free(lyd_Texture texture) {
   free(texture.data);
+  texture.data = NULL;
+}
+
+lyd_Spritesheet lyd_spritesheet_create(char *path, lyd_vec2u tilesize) {
+  lyd_Spritesheet res;
+
+  lyd_Texture base = lyd_texture_load(path);
+  res.len = (base.size.x / tilesize.x) * (base.size.y / tilesize.y);
+  res.items = malloc(sizeof(lyd_Texture)*res.len);
+  if (!res.items)
+    ERROR_EXT("(lyd_spritesheet_create) failed to allocate mem for spritesheet\n");
+
+  for (u32 i=0;i<(base.size.y/tilesize.y);i++) {
+    for (u32 j=0;j<(base.size.x/tilesize.x);j++) {
+      lyd_Texture tile = lyd_texture_copy(base);
+      lyd_texture_cut(&tile, (lyd_vec2){j*tilesize.x, i*tilesize.y}, LYD_VEC2TOF(tilesize));
+      res.items[j+i*(base.size.x/tilesize.x)] = tile;
+      printf("%i\n", res.items[j+i*(base.size.x/tilesize.x)].data[0]);
+    }
+  }
+
+  lyd_texture_free(base);
+  return res;
+}
+lyd_Texture lyd_spritesheet_get(lyd_Spritesheet s, u32 i) {
+  return s.items[i];
+}
+void lyd_spritesheet_free(lyd_Spritesheet s) {
+  for (u32 i=0;i<s.len;i++) {
+    lyd_texture_free(s.items[i]);
+  }
+  s.items = NULL;
 }
 
 #endif
