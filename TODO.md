@@ -1,6 +1,6 @@
 # TODO LIST
 
-- [ ] mouse scroll
+- [x] mouse scroll
 - [ ] gamepad support
 - [ ] math util
 - [ ] tilemap

@@ -13,19 +13,15 @@
                            '..'                         `--'  `"                     
 a small header file for creating games i guess, uses sdl for the backend to render arrays to the screen
 i know its not really much but its just a fun experiment for me
-
-big todo:
- - time ticks(custom adjustable tick) 
- - mouse input
 */
 
 // since this "framework"(idk how to call it) uses a bunch of macros
 // to define preferences like LYDIA_TYPEDEFS, i reccoment defining this
 // preferences at the top of the header file so that whenvever you include it
 // you will always have the preferences
-// es:
+// by default i'll enable this
 // #define LYDIA_TYPEDEFS
-// #defien LYDIA_REMOVE_PREFIX
+// #define LYDIA_REMOVE_PREFIX
 
 #ifndef LYDIA_H
 #define LYDIA_H
@@ -301,6 +297,7 @@ lyd_vec2 lyd_mouse_get_from_window(void);
 bool lyd_mouse_released(lyd_MouseButton btn);
 bool lyd_mouse_pressed(lyd_MouseButton btn);
 bool lyd_mouse_down(lyd_MouseButton btn);
+i32 lyd_mouse_scroll(void);
 
 // every function, struct, enum member.... has the lyd prefix to avoid confusion
 // by defining this macro before including the file you disable the prefix
@@ -370,6 +367,7 @@ static bool _key_current[LYD_KEY_COUNT] = {0};
 static bool _key_previous[LYD_KEY_COUNT] = {0};
 static bool _mouse_current[LYD_MOUSE_COUNT] = {0};
 static bool _mouse_previous[LYD_MOUSE_COUNT] = {0};
+static i32 _mouse_scroll = 0;
 static vec2 _mouse_pos = {0};
 
 lyd_Color color_pack(u8 a, u8 r, u8 g, u8 b) {
@@ -439,6 +437,7 @@ void lyd_update(void) {
     _key_current[i] = keystates[i];
   }
 
+  _mouse_scroll = 0;
   memcpy(_mouse_previous, _mouse_current, sizeof(_mouse_previous));
   for (u8 i=0;i<LYD_MOUSE_COUNT;i++)
     _mouse_current[i] = 0;
@@ -466,6 +465,10 @@ void lyd_update(void) {
       case SDL_MOUSEMOTION:
         _mouse_pos.x = sdlevent.motion.x;
         _mouse_pos.y = sdlevent.motion.y;
+      break;
+
+      case SDL_MOUSEWHEEL:
+        _mouse_scroll = sdlevent.wheel.y;
       break;
     }
   }
@@ -531,6 +534,9 @@ lyd_vec2 lyd_mouse_get(void) {
 }
 lyd_vec2 lyd_mouse_get_from_window(void) {
   return _mouse_pos;
+}
+i32 lyd_mouse_scroll(void) {
+  return _mouse_scroll;
 }
 
 void lyd_change_target(lyd_Texture *target) {
