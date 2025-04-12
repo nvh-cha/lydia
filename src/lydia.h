@@ -31,7 +31,6 @@ i know its not really much but its just a fun experiment for me
 
 // small aliases for common types
 // optional to use but reccomended by me :)
-#define LYDIA_TYPEDEFS // TODO REMOVE AFTER
 #ifdef LYDIA_TYPEDEFS // you can use the typedefs by calling #define LYDIA_TYPEDEFS
                       // before including the header file
 typedef uint8_t   u8;
@@ -51,19 +50,19 @@ typedef size_t usize;
 #endif
 
 //vec2 types
-typedef struct { f32 x, y; } lyd_vec2f;
-typedef struct { i32 x, y; } lyd_vec2i;
-typedef struct { u32 x, y; } lyd_vec2u;
+typedef struct { float x, y; } lyd_vec2f;
+typedef struct { int32_t x, y; } lyd_vec2i;
+typedef struct { uint32_t x, y; } lyd_vec2u;
 //vec2 is by default a vec2f
 typedef lyd_vec2f lyd_vec2;
 
-#define LYD_VEC2TOU(V) (lyd_vec2u){(u32)V.x, (u32)V.y}
-#define LYD_VEC2TOI(V) (lyd_vec2i){(i32)V.x, (i32)V.y}
-#define LYD_VEC2TOF(V) (lyd_vec2f){(f32)V.x, (f32)V.y}
+#define LYD_VEC2TOU(V) (lyd_vec2u){(uint32_t)V.x, (uint32_t)V.y}
+#define LYD_VEC2TOI(V) (lyd_vec2i){(int32_t)V.x, (int32_t)V.y}
+#define LYD_VEC2TOF(V) (lyd_vec2f){(float)V.x, (float)V.y}
 
 //general stuff
-void lyd_init(u32 buffer_w, u32 buffer_h, u32 window_w, u32 window_h, char *title);
-void lyd_initx(u32 buffer_w, u32 buffer_h, u32 window_w, u32 window_h, char *title, f32 frame_rate, bool resizable, bool border);
+void lyd_init(uint32_t buffer_w, uint32_t buffer_h, uint32_t window_w, uint32_t window_h, char *title);
+void lyd_initx(uint32_t buffer_w, uint32_t buffer_h, uint32_t window_w, uint32_t window_h, char *title, float frame_rate, bool resizable, bool border);
 void lyd_quit(void);
 bool lyd_get_running(void);
 void lyd_stop_running(void);
@@ -72,7 +71,7 @@ void lyd_update(void);
 void lyd_update_late(void);
 
 //render stuff
-typedef u32 lyd_Color; // colors are represented by u32
+typedef uint32_t lyd_Color; // colors are represented by uint32_t
                    // they use the AARRGGBB format
 #define LYD_COLOR_WHITE     0xffffffff
 #define LYD_COLOR_BLACK     0xff000000
@@ -83,8 +82,8 @@ typedef u32 lyd_Color; // colors are represented by u32
 #define LYD_COLOR_YELLOW    0xffffff00
 #define LYD_COLOR_TURQUOISE 0xff00ffff
 
-lyd_Color color_pack(u8 a, u8 r, u8 g, u8 b);
-void color_unpack(lyd_Color color, u8 *a, u8 *r, u8*g, u8*b);
+lyd_Color color_pack(uint8_t a, uint8_t r, uint8_t g, uint8_t b);
+void color_unpack(lyd_Color color, uint8_t *a, uint8_t *r, uint8_t*g, uint8_t*b);
 
 typedef struct {
   lyd_vec2u size;
@@ -101,11 +100,11 @@ void lyd_texture_free(lyd_Texture texture);
 
 typedef struct {
   lyd_Texture *items;
-  u32 len;
+  uint32_t len;
 } lyd_Spritesheet;
 
 lyd_Spritesheet lyd_spritesheet_create(char *path, lyd_vec2u tilesize);
-lyd_Texture lyd_spritesheet_get(lyd_Spritesheet s, u32 i);
+lyd_Texture lyd_spritesheet_get(lyd_Spritesheet s, uint32_t i);
 void lyd_spritesheet_free(lyd_Spritesheet s);
 
 typedef enum {
@@ -122,7 +121,7 @@ typedef enum {
 void lyd_change_target(lyd_Texture *target); //leave null for the buffer
 void lyd_clear(lyd_Color c);
 void lyd_change_blending(lyd_BlendMode mode);
-f32 lyd_time_delta(void);
+float lyd_time_delta(void);
 
 void lyd_render_pixel(lyd_vec2 pos, lyd_Color color);
 void lyd_render_rect(lyd_vec2 pos, lyd_vec2 size, lyd_Color color);
@@ -304,11 +303,10 @@ lyd_vec2 lyd_mouse_get_from_window(void);
 bool lyd_mouse_released(lyd_MouseButton btn);
 bool lyd_mouse_pressed(lyd_MouseButton btn);
 bool lyd_mouse_down(lyd_MouseButton btn);
-i32 lyd_mouse_scroll(void);
+int32_t lyd_mouse_scroll(void);
 
 // every function, struct, enum member.... has the lyd prefix to avoid confusion
 // by defining this macro before including the file you disable the prefix
-#define LYDIA_REMOVE_PREFIX //TODO REMOVE THIS LATER
 #ifdef LYDIA_REMOVE_PREFIX
 typedef lyd_vec2f             vec2f;
 typedef lyd_vec2i             vec2i;
@@ -331,7 +329,7 @@ typedef lyd_MouseButton MouseButton;
 #define COLOR_TURQUOISE LYD_COLOR_TURQUOISE 
 #endif
 
-#define LYDIA_IMPLEMENT //TODO REMOVE AFTER
+#define LYDIA_IMPLEMENT // TODO remove later
 #ifdef LYDIA_IMPLEMENT
 
 #include <stdio.h>
@@ -349,7 +347,7 @@ typedef lyd_MouseButton MouseButton;
 static bool running;
 
 typedef struct {
-  vec2u window_size;
+  lyd_vec2u window_size;
   bool resizable;
   char *title;
 
@@ -357,17 +355,17 @@ typedef struct {
   SDL_Renderer *sdlrender;
   SDL_Texture *sdltex;
 
-  Texture buffer;
-  Texture *target;
+  lyd_Texture buffer;
+  lyd_Texture *target;
   lyd_BlendMode blending;
 } _RenderState;
 static _RenderState render;
 
 typedef struct {
-  f32 target_frame_time;
-  f32 delta;
-  u32 last_frame_time;
-  u32 start_time;
+  float target_frame_time;
+  float delta;
+  uint32_t last_frame_time;
+  uint32_t start_time;
 } _TimeState;
 static _TimeState time;
 
@@ -375,27 +373,27 @@ static bool _key_current[LYD_KEY_COUNT] = {0};
 static bool _key_previous[LYD_KEY_COUNT] = {0};
 static bool _mouse_current[LYD_MOUSE_COUNT] = {0};
 static bool _mouse_previous[LYD_MOUSE_COUNT] = {0};
-static i32 _mouse_scroll = 0;
-static vec2 _mouse_pos = {0};
+static int32_t _mouse_scroll = 0;
+static lyd_vec2 _mouse_pos = {0};
 
-lyd_Color color_pack(u8 a, u8 r, u8 g, u8 b) {
-  return ((u32)a << 24) | ((u32)r << 16) | ((u32)g << 8) | (u32)b;
+lyd_Color color_pack(uint8_t a, uint8_t r, uint8_t g, uint8_t b) {
+  return ((uint32_t)a << 24) | ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)b;
 }
-void color_unpack(lyd_Color color, u8 *a, u8 *r, u8*g, u8*b) {
+void color_unpack(lyd_Color color, uint8_t *a, uint8_t *r, uint8_t*g, uint8_t*b) {
   *a = (color >> 24) & 0xff;
   *r = (color >> 16) & 0xff;
   *g = (color >> 8)  & 0xff;
   *b = color         & 0xff;
 }
 
-void lyd_init(u32 buffer_w, u32 buffer_h, u32 window_w, u32 window_h, char *title) { lyd_initx(buffer_w, buffer_h, window_w, window_h, title, 60.f, false, true); }
-void lyd_initx(u32 buffer_w, u32 buffer_h, u32 window_w, u32 window_h, char *title, f32 frame_rate, bool resizable, bool border) {
+void lyd_init(uint32_t buffer_w, uint32_t buffer_h, uint32_t window_w, uint32_t window_h, char *title) { lyd_initx(buffer_w, buffer_h, window_w, window_h, title, 60.f, false, true); }
+void lyd_initx(uint32_t buffer_w, uint32_t buffer_h, uint32_t window_w, uint32_t window_h, char *title, float frame_rate, bool resizable, bool border) {
   render = (_RenderState){0};
-  render.window_size = (vec2u){window_w, window_h};
+  render.window_size = (lyd_vec2u){window_w, window_h};
   render.title = title;
   render.resizable = resizable;
   render.blending = LYD_BLEND_NORMAL;
-  render.buffer = (Texture){ (vec2u){buffer_w, buffer_h}, (Color*)malloc(sizeof(Color)*buffer_w*buffer_h) };
+  render.buffer = (lyd_Texture){ (lyd_vec2u){buffer_w, buffer_h}, (lyd_Color*)malloc(sizeof(lyd_Color)*buffer_w*buffer_h) };
   if (!render.buffer.data)
     ERROR_EXT("failed to malloc for buffer data during window creation\n");
   render.target = &render.buffer;
@@ -410,7 +408,7 @@ void lyd_initx(u32 buffer_w, u32 buffer_h, u32 window_w, u32 window_h, char *tit
   
   render.sdltex = SDL_CreateTexture(render.sdlrender, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, buffer_w, buffer_h);
   
-  for (u32 i=0;i<buffer_w*buffer_h;i++) {
+  for (uint32_t i=0;i<buffer_w*buffer_h;i++) {
     render.buffer.data[i] = 0xFFFFFFFF;
   }   
 
@@ -440,16 +438,16 @@ void lyd_update(void) {
   time.start_time = SDL_GetTicks();
 
   memcpy(_key_previous, _key_current, sizeof(_key_previous));
-  const u8 *keystates = SDL_GetKeyboardState(NULL);
-  for (u32 i=0;i<LYD_KEY_COUNT;i++) {
+  const uint8_t *keystates = SDL_GetKeyboardState(NULL);
+  for (uint32_t i=0;i<LYD_KEY_COUNT;i++) {
     _key_current[i] = keystates[i];
   }
 
   _mouse_scroll = 0;
   memcpy(_mouse_previous, _mouse_current, sizeof(_mouse_previous));
-  for (u8 i=0;i<LYD_MOUSE_COUNT;i++)
+  for (uint8_t i=0;i<LYD_MOUSE_COUNT;i++)
     _mouse_current[i] = 0;
-  u32 mouse_state = SDL_GetMouseState(NULL, NULL);
+  uint32_t mouse_state = SDL_GetMouseState(NULL, NULL);
   if (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT))
     _mouse_current[LYD_MOUSE_LEFT] = 1;
   if (mouse_state & SDL_BUTTON(SDL_BUTTON_RIGHT))
@@ -487,9 +485,9 @@ void lyd_update_late(void) {
   if (render.resizable) {
     SDL_GetWindowSize(render.sdlwin, &render.window_size.x, &render.window_size.y);
   }
-  f32 sx = (f32)render.window_size.x / render.buffer.size.x;
-  f32 sy = (f32)render.window_size.y / render.buffer.size.y;
-  f32 scale = (sx<sy) ? sx : sy;
+  float sx = (float)render.window_size.x / render.buffer.size.x;
+  float sy = (float)render.window_size.y / render.buffer.size.y;
+  float scale = (sx<sy) ? sx : sy;
 
   dst = (SDL_Rect) {
     (render.window_size.x-render.buffer.size.x*scale)/2,
@@ -497,21 +495,21 @@ void lyd_update_late(void) {
       render.buffer.size.x*scale, render.buffer.size.y*scale
   };
 
-  SDL_UpdateTexture(render.sdltex, NULL, render.buffer.data, render.buffer.size.x*sizeof(u32));
+  SDL_UpdateTexture(render.sdltex, NULL, render.buffer.data, render.buffer.size.x*sizeof(uint32_t));
   SDL_RenderClear(render.sdlrender);
   SDL_RenderCopy(render.sdlrender, render.sdltex, NULL, &dst);
   SDL_RenderPresent(render.sdlrender);
 
-  u32 frame_time = SDL_GetTicks() - time.start_time;
+  uint32_t frame_time = SDL_GetTicks() - time.start_time;
   if (frame_time < time.target_frame_time)
     SDL_Delay(time.target_frame_time-frame_time);
 
-  u32 current_time = SDL_GetTicks();
+  uint32_t current_time = SDL_GetTicks();
   time.delta = (current_time - time.last_frame_time) / 1000.f;
   time.last_frame_time = current_time;
 }
 
-f32 lyd_time_delta(void) {
+float lyd_time_delta(void) {
   return time.delta;
 }
 
@@ -527,27 +525,27 @@ bool lyd_key_released(lyd_Key k) {
   if (k >= LYD_KEY_COUNT) ERROR_RET(false, "(lyd_key_released) theres no key number: %i\n", k);
   return !_key_current[k] && _key_previous[k];
 }
-bool lyd_mouse_released(MouseButton btn) {
+bool lyd_mouse_released(lyd_MouseButton btn) {
   if (btn >= LYD_MOUSE_COUNT) ERROR_RET(false, "(lyd_mouse_released) theres no mouse button: %i\n", btn);
   return !_mouse_current[btn] && _mouse_previous[btn];
 }
-bool lyd_mouse_pressed(MouseButton btn) {
+bool lyd_mouse_pressed(lyd_MouseButton btn) {
   if (btn >= LYD_MOUSE_COUNT) ERROR_RET(false, "(lyd_mouse_released) theres no mouse button: %i\n", btn);
   return _mouse_current[btn] && !_mouse_previous[btn];
 }
-bool lyd_mouse_down(MouseButton btn) {
+bool lyd_mouse_down(lyd_MouseButton btn) {
   if (btn >= LYD_MOUSE_COUNT) ERROR_RET(false, "(lyd_mouse_released) theres no mouse button: %i\n", btn);
   return _mouse_current[btn];
 }
 lyd_vec2 lyd_mouse_get(void) {
-  f32 x = (_mouse_pos.x * render.buffer.size.x) / render.window_size.x;
-  f32 y = (_mouse_pos.y * render.buffer.size.y) / render.window_size.y;
-  return (vec2){x, y};
+  float x = (_mouse_pos.x * render.buffer.size.x) / render.window_size.x;
+  float y = (_mouse_pos.y * render.buffer.size.y) / render.window_size.y;
+  return (lyd_vec2){x, y};
 }
 lyd_vec2 lyd_mouse_get_from_window(void) {
   return _mouse_pos;
 }
-i32 lyd_mouse_scroll(void) {
+int32_t lyd_mouse_scroll(void) {
   return _mouse_scroll;
 }
 
@@ -558,7 +556,7 @@ void lyd_change_target(lyd_Texture *target) {
     render.target = target;
 }
 void lyd_clear(lyd_Color c) {
-  for (u32 i=0;i<render.target->size.x*render.target->size.y;i++) {
+  for (uint32_t i=0;i<render.target->size.x*render.target->size.y;i++) {
     render.target->data[i] = c;
   }
 }
@@ -567,22 +565,22 @@ void lyd_change_blending(lyd_BlendMode mode) {
 }
 void lyd_render_pixel(lyd_vec2 pos, lyd_Color color) {
   if (pos.x >= 0 && pos.y >= 0 && pos.x < render.target->size.x && pos.y < render.target->size.y) {
-    u32 out = color;
+    uint32_t out = color;
     if (render.blending != LYD_BLEND_NONE) {
-      u8 src_a = 0;
-      u8 src_r = 0;
-      u8 src_g = 0;
-      u8 src_b = 0;
+      uint8_t src_a = 0;
+      uint8_t src_r = 0;
+      uint8_t src_g = 0;
+      uint8_t src_b = 0;
       color_unpack(color, &src_a, &src_r, &src_g, &src_b);
-      u8 dst_a = 0;
-      u8 dst_r = 0;
-      u8 dst_g = 0;
-      u8 dst_b = 0;
-      color_unpack(render.target->data[(u32)(pos.x+(u32)(pos.y)*render.target->size.x)], &dst_a, &dst_r, &dst_g, &dst_b);
-      u8 out_a = 0;
-      u8 out_r = 0;
-      u8 out_g = 0;
-      u8 out_b = 0;
+      uint8_t dst_a = 0;
+      uint8_t dst_r = 0;
+      uint8_t dst_g = 0;
+      uint8_t dst_b = 0;
+      color_unpack(render.target->data[(uint32_t)(pos.x+(uint32_t)(pos.y)*render.target->size.x)], &dst_a, &dst_r, &dst_g, &dst_b);
+      uint8_t out_a = 0;
+      uint8_t out_r = 0;
+      uint8_t out_g = 0;
+      uint8_t out_b = 0;
       switch (render.blending) {
         default:
         break;
@@ -639,34 +637,34 @@ void lyd_render_pixel(lyd_vec2 pos, lyd_Color color) {
       out = color_pack(out_a, out_r, out_g, out_b);
     }
 
-    render.target->data[(u32)(pos.x+(u32)(pos.y)*render.target->size.x)] = out;
+    render.target->data[(uint32_t)(pos.x+(uint32_t)(pos.y)*render.target->size.x)] = out;
   }
 }
 void lyd_render_rect(lyd_vec2 pos, lyd_vec2 size, lyd_Color color) {
-  for (u32 i=0;i<size.y;i++) 
-    for (u32 j=0;j<size.x;j++)
+  for (uint32_t i=0;i<size.y;i++) 
+    for (uint32_t j=0;j<size.x;j++)
       lyd_render_pixel((lyd_vec2){pos.x+j, pos.y+i}, color);
 }
 void lyd_render_texture(lyd_vec2 pos, lyd_Texture texture) {
-  for (u32 i=0;i<texture.size.y;i++)
-    for (u32 j=0;j<texture.size.x;j++)
+  for (uint32_t i=0;i<texture.size.y;i++)
+    for (uint32_t j=0;j<texture.size.x;j++)
       lyd_render_pixel((lyd_vec2){pos.x+j, pos.y+i}, texture.data[j+i*texture.size.x]);
 }
 
 void lyd_render_line(lyd_vec2 start, lyd_vec2 end, lyd_Color color) {
-  f32 dx = end.x - start.x;
-  f32 dy = end.y - start.y;
+  float dx = end.x - start.x;
+  float dy = end.y - start.y;
 
-  i32 steps = (int)fmax(fabs(dx), fabs(dy));
+  int32_t steps = (int)fmax(fabs(dx), fabs(dy));
 
-  f32 x_inc = dx / steps;
-  f32 y_inc = dy / steps;
+  float x_inc = dx / steps;
+  float y_inc = dy / steps;
 
-  f32 x = start.x;
-  f32 y = start.y;
+  float x = start.x;
+  float y = start.y;
 
-  for (u32 i=0;i<=steps;i++) {
-    lyd_render_pixel((vec2){(int)(x+0.5f), (int)(y+0.5f)}, color);
+  for (uint32_t i=0;i<=steps;i++) {
+    lyd_render_pixel((lyd_vec2){(int)(x+0.5f), (int)(y+0.5f)}, color);
     x += x_inc;
     y += y_inc;
   }
@@ -698,14 +696,14 @@ lyd_Texture lyd_texture_load(char *path) {
 lyd_Texture lyd_texture_copy(lyd_Texture texture) {
   lyd_Texture ret = (lyd_Texture){.size = texture.size};
   ret.data = malloc(sizeof(lyd_Color)*texture.size.x*texture.size.y);
-  for (u32 i=0;i<texture.size.x*texture.size.y;i++) {
+  for (uint32_t i=0;i<texture.size.x*texture.size.y;i++) {
     ret.data[i] = texture.data[i];
   }
   return ret;
 }
 
 void lyd_texture_replace_color(lyd_Texture t, lyd_Color from, lyd_Color to) {
-  for (u32 i=0;i<t.size.x*t.size.y;i++) {
+  for (uint32_t i=0;i<t.size.x*t.size.y;i++) {
     if (t.data[i] == from)
       t.data[i] = to;
   }
@@ -713,15 +711,15 @@ void lyd_texture_replace_color(lyd_Texture t, lyd_Color from, lyd_Color to) {
 
 void lyd_texture_flipy(lyd_Texture t) {
   lyd_Texture tmp = lyd_texture_copy(t);
-  for (u32 i=0;i<t.size.x;i++)
-    for (u32 j=0;j<t.size.y;j++)
+  for (uint32_t i=0;i<t.size.x;i++)
+    for (uint32_t j=0;j<t.size.y;j++)
       t.data[j*t.size.x+i] = tmp.data[(t.size.y-1-j)*t.size.x+i];
   free(tmp.data);
 }
 void lyd_texture_flipx(lyd_Texture t) {
   lyd_Texture tmp = lyd_texture_copy(t);
-  for (u32 i=0;i<t.size.y;i++) {
-    for (u32 j=0;j<t.size.x;j++) {
+  for (uint32_t i=0;i<t.size.y;i++) {
+    for (uint32_t j=0;j<t.size.x;j++) {
       t.data[i*t.size.x+j] = tmp.data[i*t.size.x+(t.size.x-j)];
     }
   }
@@ -735,9 +733,9 @@ void lyd_texture_cut(lyd_Texture *t, lyd_vec2 pos, lyd_vec2 size) {
   if (!res.data)
     ERROR_EXT("failed to malloc for texture cut function\n")
 
-  for (u32 i=0;i<size.y;i++) {
-    for (u32 j=0;j<size.x;j++) {
-      res.data[(u32)(i * size.x + j)] = t->data[(int)((pos.y + i) * t->size.x + pos.x + j)];
+  for (uint32_t i=0;i<size.y;i++) {
+    for (uint32_t j=0;j<size.x;j++) {
+      res.data[(uint32_t)(i * size.x + j)] = t->data[(int)((pos.y + i) * t->size.x + pos.x + j)];
     }
   }
 
@@ -759,8 +757,8 @@ lyd_Spritesheet lyd_spritesheet_create(char *path, lyd_vec2u tilesize) {
   if (!res.items)
     ERROR_EXT("(lyd_spritesheet_create) failed to allocate mem for spritesheet\n");
 
-  for (u32 i=0;i<(base.size.y/tilesize.y);i++) {
-    for (u32 j=0;j<(base.size.x/tilesize.x);j++) {
+  for (uint32_t i=0;i<(base.size.y/tilesize.y);i++) {
+    for (uint32_t j=0;j<(base.size.x/tilesize.x);j++) {
       lyd_Texture tile = lyd_texture_copy(base);
       lyd_texture_cut(&tile, (lyd_vec2){j*tilesize.x, i*tilesize.y}, LYD_VEC2TOF(tilesize));
       res.items[j+i*(base.size.x/tilesize.x)] = tile;
@@ -771,11 +769,11 @@ lyd_Spritesheet lyd_spritesheet_create(char *path, lyd_vec2u tilesize) {
   lyd_texture_free(base);
   return res;
 }
-lyd_Texture lyd_spritesheet_get(lyd_Spritesheet s, u32 i) {
+lyd_Texture lyd_spritesheet_get(lyd_Spritesheet s, uint32_t i) {
   return s.items[i];
 }
 void lyd_spritesheet_free(lyd_Spritesheet s) {
-  for (u32 i=0;i<s.len;i++) {
+  for (uint32_t i=0;i<s.len;i++) {
     lyd_texture_free(s.items[i]);
   }
   s.items = NULL;
