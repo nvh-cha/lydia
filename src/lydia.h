@@ -123,7 +123,6 @@ void lyd_change_target(lyd_Texture *target); //leave null for the buffer
 void lyd_clear(lyd_Color c);
 void lyd_change_blending(lyd_BlendMode mode);
 f32 lyd_time_delta(void);
-f32 lyd_time_elapsed(void);
 
 void lyd_render_pixel(lyd_vec2 pos, lyd_Color color);
 void lyd_render_rect(lyd_vec2 pos, lyd_vec2 size, lyd_Color color);
@@ -510,6 +509,10 @@ void lyd_update_late(void) {
   u32 current_time = SDL_GetTicks();
   time.delta = (current_time - time.last_frame_time) / 1000.f;
   time.last_frame_time = current_time;
+}
+
+f32 lyd_time_delta(void) {
+  return time.delta;
 }
 
 bool lyd_key_pressed(lyd_Key k) {
