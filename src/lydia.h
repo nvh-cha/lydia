@@ -60,6 +60,19 @@ typedef lyd_vec2f lyd_vec2;
 #define LYD_VEC2TOI(V) (lyd_vec2i){(int32_t)V.x, (int32_t)V.y}
 #define LYD_VEC2TOF(V) (lyd_vec2f){(float)V.x, (float)V.y}
 
+//arraylist
+typedef struct {
+	void *items;
+	size_t capacity;
+	size_t len;
+	size_t item_size;
+} lyd_ArrayList;
+
+lyd_ArrayList *array_list_create(size_t item_size, size_t initial_capacity);
+size_t array_list_append(lyd_ArrayList *arr, void *item);
+void *array_list_get(lyd_ArrayList *arr, size_t index);
+u8 array_list_remove(lyd_ArrayList *arr, size_t index);
+
 //general stuff
 void lyd_init(uint32_t buffer_w, uint32_t buffer_h, uint32_t window_w, uint32_t window_h, char *title);
 void lyd_initx(uint32_t buffer_w, uint32_t buffer_h, uint32_t window_w, uint32_t window_h, char *title, float frame_rate, bool resizable, bool border);
@@ -384,6 +397,55 @@ void color_unpack(lyd_Color color, uint8_t *a, uint8_t *r, uint8_t*g, uint8_t*b)
   *r = (color >> 16) & 0xff;
   *g = (color >> 8)  & 0xff;
   *b = color         & 0xff;
+}
+
+lyd_ArrayList *array_list_create(size_t item_size, size_t initial_capacity) {
+	ArrayList *arr = malloc(sizeof(lyd_ArrayList));
+	if (!arr)
+		ERROR_RET(NULL, "(array_list_create) failed to allocate memory for the array_list\n");
+	arr->item_size = item_size;
+	arr->capacity = initial_capacity;
+	arr->len = 0;
+	arr->items = malloc(item_size*arr->capacity);
+	if (!arr->items)
+		ERROR_RET(NULL, "(array_list_create)failed to allocate memory for array_list\n");
+	return arr;
+}
+
+size_t array_list_append(lyd_ArrayList *arr, void *item) {
+	if (arr->capacity == arr->len) {
+		arr->capacity = arr->capacity > 0 ? arr->capacity*2 : 1;
+		void *items = realloc(arr->items, arr->item_size*arr->capacity);
+		if (!items) ERROR_RET(-1, "(array_list_append)failed to realloc memory for array_list\n");
+		arr->items = items;
+	}
+	size_t index = arr->len++;
+	memcpy(arr->items+arr->item_size*index, item, arr->item_size);
+	return index;
+}
+
+void *array_list_get(lyd_ArrayList *arr, size_t index) {
+	if (index >= arr->len)
+		ERROR_RET(NULL, "(array_list_get)index out of bounds\n");
+	return arr->items+index*arr->item_size;
+}
+
+u8 array_list_remove(lyd_ArrayList *arr, size_t index) {
+	if (arr->len == 0) ERROR_RET(1, "(array_list_remove) list is empty\n");
+    if (index >= arr->len) ERROR_RET(1, "(array_list_remove) index out of bounds\n");
+
+	if (arr->len == 1) {
+		arr->len = 0;
+		return 0;
+	}
+
+	--arr->len;
+
+	u8 *item_ptr = (u8*)arr->items + index * arr->item_size;
+	u8 *end_ptr = (u8*)arr->items + arr->len * arr->item_size;
+	memcpy(item_ptr, end_ptr, arr->item_size);
+
+	return 0;
 }
 
 void lyd_init(uint32_t buffer_w, uint32_t buffer_h, uint32_t window_w, uint32_t window_h, char *title) { lyd_initx(buffer_w, buffer_h, window_w, window_h, title, 60.f, false, true); }
